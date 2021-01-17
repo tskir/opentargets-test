@@ -50,7 +50,7 @@ def query_rest_api(ot_client, filter_type: str, filter_value: str) -> pd.DataFra
     association_df = pd.DataFrame({
         'target_id': pd.Series([a['target']['id'] for a in associations], dtype='str'),
         'disease_id': pd.Series([a['disease']['id'] for a in associations], dtype='str'),
-        'association_score.overall': pd.Series([a['association_score']['overall'] for a in associations], dtype='float')
+        'association_score_overall': pd.Series([a['association_score']['overall'] for a in associations], dtype='float')
     })
 
     return association_df
@@ -73,13 +73,18 @@ def main(target_id: str, disease_id: str) -> None:
 
     # Print the associations
     for filter_type, results in associations.items():
-        print(f'Query results for {filter_type}')
+        print(f'Query results for {filter_type}:')
         print(results)
         print()
 
     # Print the summary statistics
-    for filter_type, filter_result in associations.items():
-        print(f'Summary results for {filter_type}')
+    for filter_type, results in associations.items():
+        print(f'Summary results for {filter_type}:')
+        print(f'Minimum = {results.association_score_overall.min():.3f}')
+        print(f'Maximum = {results.association_score_overall.max():.3f}')
+        print(f'Mean = {results.association_score_overall.mean():.3f}')
+        print(f'Standard deviation = {results.association_score_overall.std():.3f}')
+        print()
 
 
 if __name__ == '__main__':
