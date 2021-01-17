@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import itertools
-import pandas as pd
 import opentargets as ot
+import pandas as pd
 
 import ot_query
 

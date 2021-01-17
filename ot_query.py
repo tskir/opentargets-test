@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""Query the Open Targets REST API by target (gene) and/or by disease and calculate simple statistics for the
+association_score.overall: min, max, avg and stdev. When both parameters are specified, the target and disease analyses
+are run separately."""
 
 import argparse
 import sys
@@ -19,9 +22,7 @@ pd.set_option('max_colwidth', None)
 pd.set_option('display.expand_frame_repr', False)
 
 # Set up the argument parser but don't parse just yet
-parser = argparse.ArgumentParser('Query the Open Targets REST API by target (gene) and/or by disease and calculate '
-                                 'simple statistics for the association_score.overall: min, max, avg and stdev. When '
-                                 'both parameters are specified, the target and disease analyses are run separately.')
+parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('-t', '--target', required=False, help='Target (gene) ID, e.g. ENSG00000197386.')
 parser.add_argument('-d', '--disease', required=False, help='Disease ID, e.g. Orphanet_399.')
 
@@ -53,7 +54,7 @@ def get_associations(ot_client: ot.OpenTargetsClient, target_id: str, disease_id
 
     Returns:
         A dict with two keys ('target' and 'disease'). The value for each field will be:
-        * If the corresponding filter value is unspecified, None
+        * If the corresponding filter value is unspecified, None.
         * Otherwise, a Pandas dataframe with three columns: target_id, disease_id, score_overall. The dataframe can be
           empty if no results were found.
     """
@@ -109,7 +110,7 @@ def print_summary_metrics(associations: dict) -> None:
             print(f'Maximum = {results.score_overall.max():.3f}')
             print(f'Mean = {results.score_overall.mean():.3f}')
             print(f'Standard deviation = {results.score_overall.std():.3f}')
-            print()
+        print()
 
 
 def main(target_id: str, disease_id: str) -> None:
@@ -118,7 +119,7 @@ def main(target_id: str, disease_id: str) -> None:
     Args:
         target_id: Target (gene) ID as understood by the Open Targets API, e.g. ENSG00000197386.
         disease_id: Disease ID as understood by the Open Targets API, e.g. Orphanet_399.
-        """
+    """
 
     # Init the Open Targets client
     ot_client = ot.OpenTargetsClient()
