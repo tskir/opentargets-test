@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import logging
 import sys
 
 import opentargets
@@ -9,12 +8,11 @@ import pandas as pd
 import retry
 
 
-# Set up logging facilities
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+# Check Python version
+if sys.version_info < (3, 6):
+    sys.exit('Python 3.6 or newer is required to run this module.')
 
-# Configure Pandas settings
+# Configure Pandas settings for complete dataframe printouts
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 pd.set_option('max_colwidth', None)
@@ -29,14 +27,14 @@ parser.add_argument('-t', '--target', required=False, help='Target (gene) ID, e.
 parser.add_argument('-d', '--disease', required=False, help='Disease ID, e.g. Orphanet_399.')
 
 
-@retry.retry(tries=5, delay=5, backoff=1.2, jitter=(1, 3), logger=logger)
+@retry.retry(tries=5, delay=5, backoff=1.2, jitter=(1, 3))
 def query_rest_api(ot_client, filter_type: str, filter_value: str) -> pd.DataFrame:
     """Query the Open Targets REST API with the appropriate filters. Retry if necessary in case of network errors.
 
     Args:
-        ot_client: Instance of an Open Targets client for querying
+        ot_client: Instance of an Open Targets client for querying.
         filter_type: which field to filter by. Can be either 'target' or 'disease'.
-        filter_value: which value to filter by in a given filter.
+        filter_value: which value to filter by in a given filter type.
 
     Return:
         A Pandas dataframe with target_id, disease_id, and association_score.overall columns, one row per one entry
@@ -45,8 +43,8 @@ def query_rest_api(ot_client, filter_type: str, filter_value: str) -> pd.DataFra
     associations = list(ot_client.filter_associations(**{filter_type: filter_value}))
 
     # Construct the dataframe. Since Pandas doesn't yet support a composite dtype in a dataframe constructor, the
-    # easiest way (which would not rely on dtype autodetection) is to supply column as separate series with explicit
-    # dtype.
+    # easiest way (which would not rely on dtype autodetection) is to supply each column as a separate series with
+    # explicit dtype declaration.
     association_df = pd.DataFrame({
         'target_id': pd.Series([a['target']['id'] for a in associations], dtype='str'),
         'disease_id': pd.Series([a['disease']['id'] for a in associations], dtype='str'),
@@ -57,6 +55,13 @@ def query_rest_api(ot_client, filter_type: str, filter_value: str) -> pd.DataFra
 
 
 def main(target_id: str, disease_id: str) -> None:
+    """Do the queries, print the full results first, and then the summary statistics. Each parameter is optional but
+    at least one must be specified.
+
+    Args:
+        target_id: Target (gene) ID as understood by the Open Targets API, e.g. ENSG00000197386.
+        disease_id: Disease ID as understood by the Open Targets API, e.g. Orphanet_399.
+        """
 
     # Check if we have anything to query
     if not (target_id or disease_id):
