@@ -3,6 +3,8 @@
 Queries the Open Targets REST API by target and/or disease and outputs simple metrics (min, max, avg, stdev) for the corresponding association score.
 
 ## Build and install the dependencies
+Python 3.6 or later is required to run this module.
+
 ```bash
 python3 -m venv env
 source env/bin/activate
@@ -23,4 +25,4 @@ Where:
 Both flags are optional, but at least one must be specified. Target and disease analyses are run independently of each other and the results are provided separately.
 
 ## Output format
-The script outputs simple statistics for the `association_score.overall` field: min, max, avg and stdev.
+The script outputs results for each query (one row per one entry returned), as well as simple statistics for the `association_score.overall` field: min, max, avg, and stdev.
