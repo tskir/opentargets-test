@@ -12,6 +12,12 @@ python3 -m pip -q install --upgrade setuptools pip
 python3 -m pip -q install --upgrade --requirement requirements.txt
 ```
 
+## Run the tests
+```bash
+source env/bin/activate
+python3 -m pytest
+```
+
 ## Run
 ```bash
 source env/bin/activate
@@ -20,7 +26,7 @@ python3 ot_query.py -t ENSG00000197386 -d Orphanet_399
 
 Where:
 * `-t` runs analysis for a given Ensembl gene (target)
-* `-d` runs anslysis for a given disease, specified as an ontology term
+* `-d` runs analysis for a given disease, specified as an ontology term
 
 Both flags are optional, but at least one must be specified. Target and disease analyses are run independently of each other and the results are provided separately.
 

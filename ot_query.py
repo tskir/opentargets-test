@@ -14,7 +14,7 @@ if sys.version_info < (3, 6):
 
 # Configure Pandas settings for complete dataframe printouts
 pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', 10)
+pd.set_option('display.max_rows', None)
 pd.set_option('max_colwidth', None)
 pd.set_option('display.expand_frame_repr', False)
 
@@ -26,7 +26,7 @@ parser.add_argument('-t', '--target', required=False, help='Target (gene) ID, e.
 parser.add_argument('-d', '--disease', required=False, help='Disease ID, e.g. Orphanet_399.')
 
 
-@retry.retry(tries=5, delay=5, backoff=1.2, jitter=(1, 3))
+@retry.retry(tries=3, delay=5, backoff=1.2, jitter=(1, 3))
 def query_rest_api(ot_client: ot.OpenTargetsClient, filter_type: str, filter_value: str) -> list:
     """Query the Open Targets REST API with the appropriate filters. Retry if necessary in case of network errors.
 
@@ -68,8 +68,9 @@ def get_associations(ot_client: ot.OpenTargetsClient, target_id: str, disease_id
                 'disease_id': pd.Series([a['disease']['id'] for a in associations], dtype='str'),
                 'score_overall': pd.Series([a['association_score']['overall'] for a in associations], dtype='float')
             })
-            # Verify API sanity
-            assert set(result[filter_type + '_id']) == {filter_value}, 'API returned inconsistent results'
+            if not result.empty:
+                # Verify API sanity
+                assert set(result[filter_type + '_id']) == {filter_value}, 'API returned inconsistent results'
         association_result[filter_type] = result
     return association_result
 
